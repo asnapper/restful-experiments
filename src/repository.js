@@ -45,13 +45,15 @@ export const deleteEntity = async (id) => {
     throw Error('Entity not found')
 }
 
-export function paginate(page, size) {
+export function paginate(page, limit) {
     return (collection) => {
-        const start = page * size
-        const end = start + size
-        const result = collection.slice(start, end)
+        const start = page * limit
+        const end = start + limit
+        const data = collection.slice(start, end)
         return {
-            result,
+            data,
+            page,
+            limit,
             more: collection.length > end,
             prev: page > 0
         }
