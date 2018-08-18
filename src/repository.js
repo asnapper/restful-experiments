@@ -1,61 +1,72 @@
-import { items as entities } from './mocks'
-
-export const getEntity = async (id) => {
-    return entities.find(entity => entity.id === id)
-}
-
-export const getEntityCollection = async () => {
-    return entities.filter(entity => !!entity)
-}
-
-export const createEntity = async (entity) => {
-    const id = entities.length + 1
-    entity = { ...entity, id }
-    entities.push(entity)
-    return entity
-}
-
-export const replaceEntity = async (id, entity) => {
-    for(let i=0; i < entities.length; i++) {
-        if (entities[i].id === id) {
-            entities[i] = { ...entity, id }
-            return entities[i]
+export const createArrayRepository = (entitiesArray) => {
+    const getEntity = async (id) => {
+        return entitiesArray.find(entity => entity.id === id)
+    }
+    
+    const getEntityCollection = async () => {
+        return entitiesArray.filter(entity => !!entity)
+    }
+    
+    const createEntity = async (entity) => {
+        const id = entitiesArray.length + 1
+        entity = { ...entity, id }
+        entitiesArray.push(entity)
+        return entity
+    }
+    
+    const replaceEntity = async (id, entity) => {
+        for(let i=0; i < entitiesArray.length; i++) {
+            if (entitiesArray[i].id === id) {
+                entitiesArray[i] = { ...entity, id }
+                return entitiesArray[i]
+            }
+        }
+        throw Error('Entity not found')
+    }
+    
+    const updateEntity = async (id, entity) => {
+        for(let i=0; i < entitiesArray.length; i++) {
+            if (entitiesArray[i] && entitiesArray[i].id === id) {
+                entitiesArray[i] = { ...entitiesArray[i], ...entity, id }
+                return entitiesArray[i]
+            }
+        }
+        throw Error('Entity not found')
+    }
+    
+    const deleteEntity = async (id) => {
+        for(let i=0; i < entitiesArray.length; i++) {
+            if (entitiesArray[i] && entitiesArray[i].id === id) {
+                entitiesArray[i] = null
+                return entitiesArray[i]
+            }
+        }
+        throw Error('Entity not found')
+    }
+    
+    function paginate(page, limit) {
+        return (collection) => {
+            const start = page * limit
+            const end = start + limit
+            const data = collection.slice(start, end)
+            return {
+                data,
+                page,
+                limit,
+                more: collection.length > end,
+                prev: page > 0
+            }
         }
     }
-    throw Error('Entity not found')
-}
 
-export const updateEntity = async (id, entity) => {
-    for(let i=0; i < entities.length; i++) {
-        if (entities[i] && entities[i].id === id) {
-            entities[i] = { ...entities[i], ...entity, id }
-            return entities[i]
-        }
-    }
-    throw Error('Entity not found')
-}
-
-export const deleteEntity = async (id) => {
-    for(let i=0; i < entities.length; i++) {
-        if (entities[i] && entities[i].id === id) {
-            entities[i] = null
-            return entities[i]
-        }
-    }
-    throw Error('Entity not found')
-}
-
-export function paginate(page, limit) {
-    return (collection) => {
-        const start = page * limit
-        const end = start + limit
-        const data = collection.slice(start, end)
-        return {
-            data,
-            page,
-            limit,
-            more: collection.length > end,
-            prev: page > 0
-        }
+    return {
+        getEntity,
+        getEntityCollection,
+        createEntity,
+        replaceEntity,
+        updateEntity,
+        deleteEntity,
+        paginate
     }
 }
+
